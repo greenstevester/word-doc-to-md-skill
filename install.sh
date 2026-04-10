@@ -42,6 +42,10 @@ get_latest_version() {
   echo "$version"
 }
 
+CLEANUP_DIR=""
+cleanup() { [ -n "$CLEANUP_DIR" ] && rm -rf "$CLEANUP_DIR"; }
+trap cleanup EXIT
+
 main() {
   local platform version version_no_v archive_name url ext
 
@@ -64,7 +68,7 @@ main() {
 
   local tmpdir
   tmpdir=$(mktemp -d)
-  trap 'rm -rf "$tmpdir"' EXIT
+  CLEANUP_DIR="$tmpdir"
 
   curl -fsSL -o "${tmpdir}/archive" "$url"
 
