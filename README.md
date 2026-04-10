@@ -3,8 +3,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: Cross-platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-blue.svg)]()
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-purple.svg)](https://claude.ai/code)
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)](https://go.dev/)
-
 > **Word doc in, clean agent-readable Markdown out.** One command, any platform.
 
 ## Why This Skill?
@@ -22,8 +20,8 @@ Word documents are everywhere — specs, contracts, requirements, meeting notes.
 
 ## Prerequisites
 
-- [Go 1.22+](https://go.dev/dl/) for building
-- Internet access on first run (downloads pandoc ~30 MB, cached forever)
+- Internet access on first run (downloads the binary + pandoc ~30 MB, cached forever)
+- No Go installation required — pre-built binaries for all platforms
 
 ## Installation
 
@@ -62,8 +60,8 @@ Restart Claude Code.
 
 **Or use the binary directly:**
 ```bash
-# Build once
-go build -o docx-to-md .
+# Install (auto-detects your platform)
+bash install.sh
 
 # Convert
 ./docx-to-md document.docx
@@ -91,12 +89,7 @@ go build -o docx-to-md .
 | macOS | Apple Silicon | `pandoc-{v}-arm64-macOS.zip` |
 | Windows | x86_64 | `pandoc-{v}-windows-x86_64.zip` |
 
-Cross-compile from any platform:
-```bash
-GOOS=linux   GOARCH=amd64 go build -o docx-to-md-linux .
-GOOS=darwin  GOARCH=arm64 go build -o docx-to-md-macos .
-GOOS=windows GOARCH=amd64 go build -o docx-to-md.exe .
-```
+Pre-built binaries are downloaded automatically by `install.sh` from [word-doc-to-md-skill-go releases](https://github.com/greenstevester/word-doc-to-md-skill-go/releases).
 
 ## Subcommands
 
