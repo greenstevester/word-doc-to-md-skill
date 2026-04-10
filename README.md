@@ -1,4 +1,4 @@
-# docx-to-agent-md
+# word-doc-to-md-skill
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: Cross-platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-blue.svg)]()
@@ -22,7 +22,7 @@ Both are cached permanently in the **skill's plugin directory** (next to the bin
 ### Where Things Are Stored
 
 ```
-~/.claude/plugins/docx-to-agent-md/     # skill plugin directory
+~/.claude/plugins/word-doc-to-md-skill/     # skill plugin directory
   install.sh                              # platform-aware installer
   docx-to-md                              # converter binary (downloaded on first use)
   bin/
@@ -45,14 +45,14 @@ Pandoc does the heavy lifting for the `.docx` parsing. When a new version of thi
 
 To force a pandoc re-download manually:
 ```bash
-rm -rf ~/.claude/plugins/docx-to-agent-md/bin
+rm -rf ~/.claude/plugins/word-doc-to-md-skill/bin
 # pandoc re-downloads on next conversion
 ```
 
 ## Installation
 
 ```
-/plugin marketplace add greenstevester/docx-to-agent-md
+/plugin marketplace add greenstevester/word-doc-to-md-skill
 ```
 
 Restart Claude Code. That's it — no build tools, no Go, no pandoc to install.
@@ -110,7 +110,7 @@ Restart Claude Code. That's it — no build tools, no Go, no pandoc to install.
 ## Update
 
 ```
-/plugin marketplace update docx-to-agent-md
+/plugin marketplace update word-doc-to-md-skill
 ```
 
 This pulls the latest skill (including any newer pandoc version). The next conversion auto-upgrades pandoc if needed.

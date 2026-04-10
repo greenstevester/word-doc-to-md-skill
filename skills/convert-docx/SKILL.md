@@ -47,7 +47,7 @@ Glob pattern: ~/.claude/**/docx-to-md
 If found, use that path as `DOCX_TO_MD`. If not found, search for `install.sh`:
 
 ```
-Glob pattern: ~/.claude/**/docx-to-agent-md/install.sh
+Glob pattern: ~/.claude/**/word-doc-to-md-skill/install.sh
 ```
 
 Then run the installer:

@@ -30,12 +30,12 @@ The `docx-to-md` binary is NOT committed — it is downloaded on first use by `i
 ## Testing the Skill
 
 To test changes:
-1. Quick test: `claude --plugin-dir /path/to/docx-to-agent-md`
+1. Quick test: `claude --plugin-dir /path/to/word-doc-to-md-skill`
 2. Full install test:
    ```
-   /plugin marketplace remove docx-to-agent-md
-   /plugin marketplace add /path/to/docx-to-agent-md
-   /plugin install convert-docx@docx-to-agent-md
+   /plugin marketplace remove word-doc-to-md-skill
+   /plugin marketplace add /path/to/word-doc-to-md-skill
+   /plugin install convert-docx@word-doc-to-md-skill
    ```
 3. Ask Claude "Convert this Word doc to markdown" with a `.docx` file nearby
 
