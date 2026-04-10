@@ -51,11 +51,29 @@ rm -rf ~/.claude/plugins/word-doc-to-md-skill/bin
 
 ## Installation
 
+**From within Claude Code (recommended):**
+
+First, add the marketplace:
 ```
 /plugin marketplace add greenstevester/word-doc-to-md-skill
 ```
 
-Restart Claude Code. That's it — no build tools, no Go, no pandoc to install.
+Then install the plugin:
+```
+/plugin install convert-docx@word-doc-to-md-skill
+```
+
+Reload plugins (or restart Claude Code):
+```
+/reload-plugins
+```
+
+**From the terminal:**
+```bash
+claude plugin add greenstevester/word-doc-to-md-skill
+```
+
+That's it — no build tools, no Go, no pandoc to install.
 
 **Verify:** Ask Claude "Convert this Word doc to markdown" with a `.docx` file nearby.
 
@@ -111,6 +129,11 @@ Restart Claude Code. That's it — no build tools, no Go, no pandoc to install.
 
 ```
 /plugin marketplace update word-doc-to-md-skill
+```
+
+Or from the terminal:
+```bash
+claude plugin update greenstevester/word-doc-to-md-skill
 ```
 
 This pulls the latest skill (including any newer pandoc version). The next conversion auto-upgrades pandoc if needed.
