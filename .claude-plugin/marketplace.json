@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "docx-to-agent-md",
+  "version": "1.0.0",
+  "description": "Convert Word documents to clean, agent-readable Markdown",
+  "owner": {
+    "name": "greenstevester"
+  },
+  "repository": "https://github.com/greenstevester/docx-to-agent-md",
+  "plugins": [
+    {
+      "name": "convert-docx",
+      "description": "Convert a .docx file to clean, agent-readable Markdown with auto-bootstrapped pandoc",
+      "source": "./skills/convert-docx",
+      "version": "1.0.0",
+      "homepage": "https://github.com/greenstevester/docx-to-agent-md/blob/main/skills/convert-docx/SKILL.md",
+      "author": {
+        "name": "greenstevester"
+      }
+    }
+  ]
+}
