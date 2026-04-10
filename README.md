@@ -3,25 +3,51 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: Cross-platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-blue.svg)]()
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-purple.svg)](https://claude.ai/code)
+
 > **Word doc in, clean agent-readable Markdown out.** One command, any platform.
 
-## Why This Skill?
+## How It Works
 
-Word documents are everywhere — specs, contracts, requirements, meeting notes. But LLMs and AI agents choke on `.docx` files. Pandoc gets you 80% of the way, but the output is littered with tracked-change markup, broken image paths, heading gaps, and grid-table noise.
+This is a **Claude Code skill** — you install it once, and Claude can convert Word documents for you on demand. There's nothing to build or configure.
 
-| Without This Skill | With This Skill |
-|--------------------|-----------------|
-| Install pandoc manually | Auto-downloads on first run |
-| Raw pandoc output with artifacts | 5-stage cleanup pipeline |
-| Broken `![](media/image1.png)` refs | Clean `[IMAGE: description]` text |
-| Tracked changes markup everywhere | Insertions accepted, deletions gone |
-| Heading hierarchy gaps (H2 → H5) | Shifted to H1 with no gaps |
-| Works on your OS only | Single binary for Win/macOS/Linux |
+### Lazy Loading: Nothing Downloads Until You Need It
 
-## Prerequisites
+When you install this skill, **no binaries are downloaded**. Everything is fetched on-demand:
 
-- Internet access on first run (downloads the binary + pandoc ~30 MB, cached forever)
-- No Go installation required — pre-built binaries for all platforms
+1. **First time you use the skill** — the `docx-to-md` binary (~2.5 MB) is downloaded for your specific platform (macOS/Linux/Windows, Intel/ARM) from [GitHub Releases](https://github.com/greenstevester/word-doc-to-md-skill-go/releases)
+2. **First time you convert a `.docx`** — pandoc (~30 MB) is downloaded automatically
+
+Both are cached permanently in the **skill's plugin directory** (next to the binary, not in your project). You only download once.
+
+### Where Things Are Stored
+
+```
+~/.claude/plugins/docx-to-agent-md/     # skill plugin directory
+  install.sh                              # platform-aware installer
+  docx-to-md                              # converter binary (downloaded on first use)
+  bin/
+    pandoc                                # pandoc binary (downloaded on first conversion)
+    .pandoc-version                       # tracks installed pandoc version
+  skills/
+    convert-docx/
+      SKILL.md                            # skill instructions
+```
+
+Everything lives inside the plugin directory. **Nothing is added to your PATH or your project directories.**
+
+### Pandoc Updates
+
+Pandoc does the heavy lifting for the `.docx` parsing. When a new version of this skill ships with a newer pandoc version:
+
+- On your next conversion, the tool detects the version mismatch
+- It prints: `Pandoc update available: 3.9.0.2 -> 3.x.x`
+- It automatically downloads the new version — no action needed from you
+
+To force a pandoc re-download manually:
+```bash
+rm -rf ~/.claude/plugins/docx-to-agent-md/bin
+# pandoc re-downloads on next conversion
+```
 
 ## Installation
 
@@ -29,27 +55,11 @@ Word documents are everywhere — specs, contracts, requirements, meeting notes.
 /plugin marketplace add greenstevester/docx-to-agent-md
 ```
 
-Restart Claude Code.
+Restart Claude Code. That's it — no build tools, no Go, no pandoc to install.
 
 **Verify:** Ask Claude "Convert this Word doc to markdown" with a `.docx` file nearby.
 
 ## Usage
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Conversion Pipeline                      │
-└─────────────────────────────────────────────────────────────────┘
-
-  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
-  │BOOTSTRAP │───▶│  PANDOC  │───▶│POSTPROC  │───▶│ CLEAN MD │
-  │(once)    │    │  EXTRACT │    │5 TRANSFORMS   │          │
-  └──────────┘    └──────────┘    └──────────┘    └──────────┘
-       │               │               │               │
-       ▼               ▼               ▼               ▼
-  Downloads        .docx → raw      Tracked changes   Ready for
-  pandoc for       GFM markdown     headings, tables   agents,
-  your platform                     images, blanks     LLMs, MCP
-```
 
 **Just ask Claude naturally:**
 ```
@@ -60,13 +70,10 @@ Restart Claude Code.
 
 **Or use the binary directly:**
 ```bash
-# Install (auto-detects your platform)
-bash install.sh
-
-# Convert
-./docx-to-md document.docx
-./docx-to-md document.docx output/clean.md
-./docx-to-md document.docx --stdout | your-tool
+./docx-to-md document.docx                      # convert, output to document.md
+./docx-to-md document.docx output/clean.md       # explicit output path
+./docx-to-md document.docx --stdout | your-tool  # pipe to another tool
+./docx-to-md postprocess raw.md cleaned.md        # clean existing markdown (no pandoc)
 ```
 
 ## What Gets Cleaned
@@ -81,39 +88,24 @@ bash install.sh
 
 ## Platform Support
 
-| OS | Arch | Pandoc Asset |
-|----|------|-------------|
-| Linux | x86_64 | `pandoc-{v}-linux-amd64.tar.gz` |
-| Linux | arm64 | `pandoc-{v}-linux-arm64.tar.gz` |
-| macOS | Intel | `pandoc-{v}-x86_64-macOS.zip` |
-| macOS | Apple Silicon | `pandoc-{v}-arm64-macOS.zip` |
-| Windows | x86_64 | `pandoc-{v}-windows-x86_64.zip` |
-
-Pre-built binaries are downloaded automatically by `install.sh` from [word-doc-to-md-skill-go releases](https://github.com/greenstevester/word-doc-to-md-skill-go/releases).
-
-## Subcommands
-
-| Command | What It Does |
-|---------|-------------|
-| `./docx-to-md <file.docx>` | Full pipeline: bootstrap + convert + postprocess |
-| `./docx-to-md postprocess <file.md>` | Clean existing markdown (no pandoc needed) |
-| `./docx-to-md bootstrap [version]` | Force re-download pandoc |
+| OS | Architecture | Status |
+|----|-------------|--------|
+| macOS | Apple Silicon (M1-M4) | Supported |
+| macOS | Intel | Supported |
+| Linux | x86_64 | Supported |
+| Linux | ARM64 | Supported |
+| Windows | x86_64 | Supported |
+| Windows | ARM64 | Supported |
 
 ## Troubleshooting
 
 | Issue | Fix |
 |-------|-----|
 | Skills not loading | Restart Claude Code after install |
-| `pandoc binary not found` | Run `./docx-to-md bootstrap` |
+| `pandoc binary not found` | Run `./docx-to-md bootstrap` to trigger re-download |
 | Proxy blocks download | Set `HTTPS_PROXY` env var |
 | Legacy `.doc` file | Pre-convert: `libreoffice --headless --convert-to docx` |
-| Multi-column layout garbled | Flag for human review |
-
-## Local Development
-
-```bash
-claude --plugin-dir /path/to/docx-to-agent-md
-```
+| Want a different pandoc version | `./docx-to-md bootstrap 3.x.x` |
 
 ## Update
 
@@ -121,6 +113,12 @@ claude --plugin-dir /path/to/docx-to-agent-md
 /plugin marketplace update docx-to-agent-md
 ```
 
+This pulls the latest skill (including any newer pandoc version). The next conversion auto-upgrades pandoc if needed.
+
+## Related
+
+- [word-doc-to-md-skill-go](https://github.com/greenstevester/word-doc-to-md-skill-go) — Go source code and cross-platform binaries
+
 ## License
 
-MIT - [github.com/greenstevester/docx-to-agent-md](https://github.com/greenstevester/docx-to-agent-md)
+MIT

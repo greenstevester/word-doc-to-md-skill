@@ -22,28 +22,37 @@ allowed-tools: Bash, Read, Write, Edit, Glob
 │  Tracked changes ✓   Heading hierarchy ✓   Tables ✓             │
 │  Image refs ✓        Blank lines ✓                              │
 │                                                                 │
-│  Pandoc auto-downloads on first run. No manual install needed.  │
+│  Everything lazy-loads on first use. Nothing to install.        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### How this skill works
+
+- **First use:** The `docx-to-md` binary is downloaded for this platform (~2.5 MB)
+- **First conversion:** Pandoc is downloaded automatically (~30 MB)
+- **Both are cached** in the skill's plugin directory (not in the user's project)
+- **Pandoc upgrades** happen automatically when a newer version is expected
+
 ### Environment Check
-- Binary: !`PLUGIN_DIR="$(dirname "$(dirname "$(dirname "$0")")")"; [ -x "${PLUGIN_DIR}/docx-to-md" ] && echo "✓ docx-to-md ready" || echo "○ docx-to-md not found — will install on first run"`
-- Pandoc: !`PLUGIN_DIR="$(dirname "$(dirname "$(dirname "$0")")")"; [ -x "${PLUGIN_DIR}/bin/pandoc" ] && echo "✓ pandoc ready" || echo "○ pandoc will download on first run (~30 MB)"`
+- Binary: !`PLUGIN_DIR="$(cd "$(dirname "$0")/../.." && pwd)"; [ -x "${PLUGIN_DIR}/docx-to-md" ] && echo "✓ docx-to-md ready" || echo "○ docx-to-md will download on first use (~2.5 MB)"`
+- Pandoc: !`PLUGIN_DIR="$(cd "$(dirname "$0")/../.." && pwd)"; [ -x "${PLUGIN_DIR}/bin/pandoc" ] && echo "✓ pandoc ready (version: $(cat "${PLUGIN_DIR}/bin/.pandoc-version" 2>/dev/null || echo 'unknown'))" || echo "○ pandoc will download on first conversion (~30 MB)"`
 
 ### Target: ${ARGUMENTS:-current directory}
 
 ---
 
-## Step 1: Ensure Binary is Installed (Once)
+## Step 1: Ensure Binary is Installed
 
-The binary is automatically downloaded for your platform from GitHub releases.
-If `docx-to-md` is not present in the plugin directory, run the install script:
+The binary is lazy-loaded: it downloads automatically on first use.
+All files are stored in the **skill plugin directory**, not in the user's project.
 
 ```bash
-PLUGIN_DIR="$(dirname "$(dirname "$(dirname "$0")")")"
+PLUGIN_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 if [ ! -x "${PLUGIN_DIR}/docx-to-md" ]; then
+  echo "First run — downloading docx-to-md for this platform..."
   bash "${PLUGIN_DIR}/install.sh"
 fi
+DOCX_TO_MD="${PLUGIN_DIR}/docx-to-md"
 ```
 
 ---
@@ -51,17 +60,18 @@ fi
 ## Step 2: Convert
 
 ```bash
-# Basic conversion
-./docx-to-md document.docx
+# Basic conversion (output goes next to the input file)
+"${DOCX_TO_MD}" document.docx
 
 # Explicit output path
-./docx-to-md document.docx output/clean.md
+"${DOCX_TO_MD}" document.docx output/clean.md
 
 # Pipe to another tool
-./docx-to-md document.docx --stdout | your-ingestion-tool
+"${DOCX_TO_MD}" document.docx --stdout | your-ingestion-tool
 ```
 
-On first run, pandoc (~30 MB) downloads automatically to `bin/`. Cached forever after.
+On the first conversion, pandoc (~30 MB) downloads automatically into the plugin directory.
+If a newer pandoc version is expected, it upgrades automatically.
 
 ---
 
@@ -82,8 +92,8 @@ On first run, pandoc (~30 MB) downloads automatically to `bin/`. Cached forever 
 Already have markdown from another source? Clean it without pandoc:
 
 ```bash
-./docx-to-md postprocess existing.md cleaned.md
-./docx-to-md postprocess existing.md --stdout
+"${DOCX_TO_MD}" postprocess existing.md cleaned.md
+"${DOCX_TO_MD}" postprocess existing.md --stdout
 ```
 
 ---
@@ -92,7 +102,8 @@ Already have markdown from another source? Clean it without pandoc:
 
 | Issue | Fix |
 |-------|-----|
-| `pandoc binary not found` | Run `./docx-to-md bootstrap` to force re-download |
+| `pandoc binary not found` | Run `"${DOCX_TO_MD}" bootstrap` to force re-download |
+| Want a specific pandoc version | Run `"${DOCX_TO_MD}" bootstrap 3.x.x` |
 | Proxy/firewall blocks download | Set `HTTPS_PROXY` env var before running |
 | Legacy `.doc` file (not `.docx`) | Pre-convert: `libreoffice --headless --convert-to docx file.doc` |
 | Multi-column layout garbled | Flag for human review — pandoc limitation |
@@ -100,8 +111,23 @@ Already have markdown from another source? Clean it without pandoc:
 
 ---
 
+## Where Things Are Stored
+
+Everything lives in the skill plugin directory — nothing is added to PATH or the user's project:
+
+```
+<plugin-dir>/
+  docx-to-md          # converter binary (lazy-loaded on first use)
+  bin/
+    pandoc             # pandoc binary (lazy-loaded on first conversion)
+    .pandoc-version    # tracks installed version for auto-upgrade
+```
+
+---
+
 ## Next Steps
 
-- **Batch convert?** `for f in *.docx; do ./docx-to-md "$f"; done`
-- **Reinstall binary?** `rm docx-to-md && bash install.sh`
+- **Batch convert?** `for f in *.docx; do "${DOCX_TO_MD}" "$f"; done`
+- **Reinstall binary?** `rm "${PLUGIN_DIR}/docx-to-md" && bash "${PLUGIN_DIR}/install.sh"`
+- **Force pandoc upgrade?** `rm -rf "${PLUGIN_DIR}/bin" && "${DOCX_TO_MD}" bootstrap`
 - **Integrate into pipeline?** Use `--stdout` to pipe directly into your ingestion tool
