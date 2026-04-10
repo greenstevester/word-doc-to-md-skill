@@ -27,21 +27,24 @@ allowed-tools: Bash, Read, Write, Edit, Glob
 ```
 
 ### Environment Check
-- Go: !`go version 2>/dev/null | grep -o "go[0-9.]*" || echo "✗ Install Go: https://go.dev/dl/"`
-- Plugin dir: !`ls .claude-plugin/plugin.json 2>/dev/null && echo "✓ Plugin structure found" || echo "✗ Not in plugin root"`
-- Binary built: !`ls bin/pandoc 2>/dev/null && echo "✓ pandoc ready" || echo "○ pandoc will download on first run (~30 MB)"`
+- Binary: !`PLUGIN_DIR="$(dirname "$(dirname "$(dirname "$0")")")"; [ -x "${PLUGIN_DIR}/docx-to-md" ] && echo "✓ docx-to-md ready" || echo "○ docx-to-md not found — will install on first run"`
+- Pandoc: !`PLUGIN_DIR="$(dirname "$(dirname "$(dirname "$0")")")"; [ -x "${PLUGIN_DIR}/bin/pandoc" ] && echo "✓ pandoc ready" || echo "○ pandoc will download on first run (~30 MB)"`
 
 ### Target: ${ARGUMENTS:-current directory}
 
 ---
 
-## Step 1: Build the Tool (Once)
+## Step 1: Ensure Binary is Installed (Once)
+
+The binary is automatically downloaded for your platform from GitHub releases.
+If `docx-to-md` is not present in the plugin directory, run the install script:
 
 ```bash
-go build -o docx-to-md .
+PLUGIN_DIR="$(dirname "$(dirname "$(dirname "$0")")")"
+if [ ! -x "${PLUGIN_DIR}/docx-to-md" ]; then
+  bash "${PLUGIN_DIR}/install.sh"
+fi
 ```
-
-This produces a single binary with zero runtime dependencies.
 
 ---
 
@@ -97,20 +100,8 @@ Already have markdown from another source? Clean it without pandoc:
 
 ---
 
-## Cross-Compile
-
-Build for any platform from any platform:
-
-```bash
-GOOS=linux   GOARCH=amd64 go build -o docx-to-md-linux .
-GOOS=darwin  GOARCH=arm64 go build -o docx-to-md-macos .
-GOOS=windows GOARCH=amd64 go build -o docx-to-md.exe .
-```
-
----
-
 ## Next Steps
 
 - **Batch convert?** `for f in *.docx; do ./docx-to-md "$f"; done`
-- **Different pandoc version?** Edit `defaultPandocVersion` in `main.go`, then `rm -rf bin/ && ./docx-to-md bootstrap`
+- **Reinstall binary?** `rm docx-to-md && bash install.sh`
 - **Integrate into pipeline?** Use `--stdout` to pipe directly into your ingestion tool
