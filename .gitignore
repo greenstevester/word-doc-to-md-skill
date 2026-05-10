@@ -2,3 +2,7 @@ bin/
 docx-to-md
 docx-to-md.exe
 .DS_Store
+
+# Local-only — never publish
+marketing/
+todos.md

@@ -1,6 +1,6 @@
 {
   "name": "word-doc-to-md-skill",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "Convert Word documents to clean, agent-readable Markdown",
   "author": {
     "name": "greenstevester"

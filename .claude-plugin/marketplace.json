@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "word-doc-to-md-skill",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "Convert Word documents to clean, agent-readable Markdown",
   "owner": {
     "name": "greenstevester"
@@ -12,7 +12,7 @@
       "name": "convert-docx",
       "description": "Convert a .docx file to clean, agent-readable Markdown with auto-bootstrapped pandoc",
       "source": "./skills/convert-docx",
-      "version": "1.1.0",
+      "version": "1.1.2",
       "homepage": "https://github.com/greenstevester/word-doc-to-md-skill/blob/main/skills/convert-docx/SKILL.md",
       "author": {
         "name": "greenstevester"

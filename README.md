@@ -6,6 +6,27 @@
 
 > **Word doc in, clean agent-readable Markdown out.** One command, any platform.
 
+## Why this skill?
+
+Pasting a Word doc into Claude (or any LLM) usually ends in noise:
+
+| Without this skill | With this skill |
+|--------------------|-----------------|
+| Tracked changes leak through as `[text]{.insertion}` | Insertions accepted, deletions and comments dropped |
+| Tables come through as `+----+----+` grid garbage | Clean pipe tables |
+| Image refs are broken file paths the model can't read | `[IMAGE: alt text]` placeholders |
+| Heading levels jump (H3 → H5 with gaps) | Normalized to start at H1, no gaps |
+| 3+ blank lines waste context | Collapsed to one |
+
+The result: Markdown that an agent can read end-to-end without choking on Word's internal bookkeeping.
+
+**Example prompts:**
+```
+"Convert this Word doc to markdown"
+"Make requirements.docx agent-readable"
+"Clean up this Word-exported markdown"
+```
+
 ## How It Works
 
 This is a **Claude Code skill** — you install it once, and Claude can convert Word documents for you on demand. There's nothing to build or configure.
