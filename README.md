@@ -31,6 +31,18 @@ The result: Markdown that an agent can read end-to-end without choking on Word's
 
 This is a **Claude Code skill** — you install it once, and Claude can convert Word documents for you on demand. There's nothing to build or configure.
 
+### Architecture: thin skill, fast Go binary
+
+The skill itself is a thin orchestration layer. The actual heavy lifting — pandoc invocation and the five post-processing passes — happens in a single static **Go** binary built from [`word-doc-to-md-skill-go`](https://github.com/greenstevester/word-doc-to-md-skill-go).
+
+No Python, Node, or Ruby runtime is required:
+
+- `CGO_ENABLED=0` and `-trimpath` — genuinely portable, no system libraries to satisfy
+- ~2.5 MB per platform, native code on every target
+- Cold start is sub-second; warm runs are pandoc-bound
+
+The skill ships nothing but README + install layer + download manifest. All the conversion logic — and any future improvements to it — lives in the Go repo above.
+
 ### Lazy Loading: Nothing Downloads Until You Need It
 
 When you install this skill, **no binaries are downloaded**. Everything is fetched on-demand:
@@ -161,7 +173,7 @@ This pulls the latest skill (including any newer pandoc version). The next conve
 
 ## Related
 
-- [word-doc-to-md-skill-go](https://github.com/greenstevester/word-doc-to-md-skill-go) — Go source code and cross-platform binaries
+- [word-doc-to-md-skill-go](https://github.com/greenstevester/word-doc-to-md-skill-go) — the Go source for the static binary that powers this skill. All the conversion logic, post-processing passes, and pandoc bootstrap live there. This skill is essentially the install + UX layer on top.
 
 ## License
 
